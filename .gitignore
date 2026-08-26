@@ -1,0 +1,7 @@
+.env
+src/vendor/
+src/node_modules/
+src/storage/*.key
+src/.env
+.vscode
+README-Docker.md
