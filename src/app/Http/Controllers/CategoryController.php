@@ -9,6 +9,7 @@ use App\Services\Category\Handlers\Delete\FindCategoryForDeletionHandler;
 use App\Services\Category\Handlers\Update\FindCategoryHandler;
 use App\Services\Category\Handlers\Update\UpdateCategoryHandler;
 use App\Services\Category\Handlers\Update\ValidateCategoryUpdateDataHandler;
+use App\Services\Category\Handlers\Delete\CheckCategoryHasNoArticlesHandler;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -83,7 +84,8 @@ class CategoryController extends Controller
     {
         try {
             $deleteChain = new FindCategoryForDeletionHandler();
-            $deleteChain->setNext(new DeleteCategoryHandler());
+            $deleteChain->setNext(new CheckCategoryHasNoArticlesHandler())
+                        ->setNext(new DeleteCategoryHandler());
             $deleteChain->handle(['id' => $id]);
             return response()->json(['message' => 'Categoría eliminada correctamente']);
         } catch (\Exception $e) {
