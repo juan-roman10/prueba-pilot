@@ -36,6 +36,7 @@ Route::middleware('auth:api')->group(function () {
 
 Route::middleware('auth:api')->group(function () {
     // CRUD Artículos
+    Route::get('articles', [ArticleController::class, 'index']);
     Route::post('articles', [ArticleController::class, 'store']);
     Route::put('articles/{id}', [ArticleController::class, 'update']);
     Route::delete('articles/{id}', [ArticleController::class, 'destroy']);

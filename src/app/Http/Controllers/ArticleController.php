@@ -16,9 +16,26 @@ use App\Services\Article\Handlers\Update\UpdateArticleWithCategoriesHandler;
 use App\Services\Article\Handlers\Delete\FindArticleForDeletionHandler;
 use App\Services\Article\Handlers\Delete\CheckArticleDeletePermissionHandler;
 use App\Services\Article\Handlers\Delete\DeleteArticleHandler;
+use App\Services\Article\Handlers\List\ApplyArticleFiltersHandler;
+use App\Services\Article\Handlers\List\PaginateArticlesHandler;
 
 class ArticleController extends Controller
 {
+    /**
+     * Listar artículos con filtros y paginación
+     */
+    public function index(Request $request)
+    {
+        try {
+            $chain = new ApplyArticleFiltersHandler();
+            $chain->setNext(new PaginateArticlesHandler());
+            $result = $chain->handle(['filters' => $request->all()]);
+            return response()->json($result['articles']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     /**
      * Crear artículo
      */
