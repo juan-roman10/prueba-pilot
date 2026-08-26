@@ -15,6 +15,21 @@ use Illuminate\Validation\ValidationException;
 class CategoryController extends Controller
 {
     /**
+     * Listar categorías con filtros y paginación
+     */
+    public function index(Request $request)
+    {
+        try {
+            $filterChain = new ApplyCategoryFiltersHandler();
+            $filterChain->setNext(new PaginateCategoriesHandler());
+            $result = $filterChain->handle(['filters' => $request->all()]);
+            return response()->json($result['categories']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    
+    /**
      * Crear categoría
      */
     public function store(Request $request)
