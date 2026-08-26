@@ -8,6 +8,12 @@ use App\Services\Article\Handlers\Create\ValidateArticleDataHandler;
 use App\Services\Article\Handlers\Create\GenerateUniqueSlugHandler;
 use App\Services\Article\Handlers\Create\AssignAuthorAndDatesHandler;
 use App\Services\Article\Handlers\Create\SaveArticleWithCategoriesHandler;
+use App\Services\Article\Handlers\Update\FindArticleHandler;
+use App\Services\Article\Handlers\Update\CheckArticlePermissionHandler;
+use App\Services\Article\Handlers\Update\ValidateArticleUpdateDataHandler;
+use App\Services\Article\Handlers\Update\UpdateSlugIfTitleChangedHandler;
+use App\Services\Article\Handlers\Update\UpdateArticleWithCategoriesHandler;
+
 
 class ArticleController extends Controller
 {
@@ -27,6 +33,34 @@ class ArticleController extends Controller
                 'message' => 'Artículo creado exitosamente',
                 'article' => $result['article'],
             ], 201);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            $status = $e->getCode() >= 400 && $e->getCode() < 600 ? $e->getCode() : 500;
+            return response()->json(['error' => $e->getMessage()], $status);
+        }
+    }
+
+    /**
+     * Actualizar artículo
+     */
+    public function update(Request $request, $id)
+    {
+        try {
+            $chain = new FindArticleHandler();
+            $chain
+                ->setNext(new CheckArticlePermissionHandler())
+                ->setNext(new ValidateArticleUpdateDataHandler())
+                ->setNext(new UpdateSlugIfTitleChangedHandler())
+                ->setNext(new UpdateArticleWithCategoriesHandler());
+            $result = $chain->handle([
+                'id'   => $id,
+                'data' => $request->all(),
+            ]);
+            return response()->json([
+                'message' => 'Artículo actualizado exitosamente',
+                'article' => $result['article'],
+            ]);
         } catch (ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422);
         } catch (\Exception $e) {
