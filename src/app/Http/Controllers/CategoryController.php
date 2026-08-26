@@ -4,7 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Services\Category\Handlers\Create\SaveCategoryHandler;
 use App\Services\Category\Handlers\Create\ValidateCategoryDataHandler;
+use App\Services\Category\Handlers\Delete\DeleteCategoryHandler;
+use App\Services\Category\Handlers\Delete\FindCategoryForDeletionHandler;
+use App\Services\Category\Handlers\Update\FindCategoryHandler;
+use App\Services\Category\Handlers\Update\UpdateCategoryHandler;
+use App\Services\Category\Handlers\Update\ValidateCategoryUpdateDataHandler;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class CategoryController extends Controller
 {
@@ -54,4 +60,20 @@ class CategoryController extends Controller
             return response()->json(['error' => $e->getMessage()], $status);
         }
     }
+
+    /**
+     * Eliminar categoría
+     */
+    public function destroy($id)
+    {
+        try {
+            $deleteChain = new FindCategoryForDeletionHandler();
+            $deleteChain->setNext(new DeleteCategoryHandler());
+            $deleteChain->handle(['id' => $id]);
+            return response()->json(['message' => 'Categoría eliminada correctamente']);
+        } catch (\Exception $e) {
+            $status = $e->getCode() >= 400 && $e->getCode() < 600 ? $e->getCode() : 500;
+            return response()->json(['error' => $e->getMessage()], $status);
+        }
+    }   
 }
