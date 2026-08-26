@@ -19,6 +19,8 @@ class AuthController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
+            'rol'      => 'nullable|in:admin,editor',
+            'estado'   => 'nullable|in:activo,inactivo',
         ]);
 
         if ($validator->fails()) {
@@ -29,6 +31,8 @@ class AuthController extends Controller
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
+            'rol'      => $request->input('rol', 'editor'),       // 'editor' por defecto
+            'estado'   => $request->input('estado', 'activo'),    // 'activo' por defecto
         ]);
 
         $token = Auth::guard('api')->login($user);
@@ -46,9 +50,10 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
+        $credentials['estado'] = 'activo';
 
         if (!$token = Auth::guard('api')->attempt($credentials)) {
-            return response()->json(['error' => 'Credenciales inválidas'], 401);
+            return response()->json(['error' => 'Credenciales inválidas o usuario inactivo'], 401);
         }
 
         return $this->respondWithToken($token);
