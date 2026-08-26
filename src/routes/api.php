@@ -38,4 +38,5 @@ Route::middleware('auth:api')->group(function () {
     // CRUD Artículos
     Route::post('articles', [ArticleController::class, 'store']);
     Route::put('articles/{id}', [ArticleController::class, 'update']);
+    Route::delete('articles/{id}', [ArticleController::class, 'destroy']);
 });
