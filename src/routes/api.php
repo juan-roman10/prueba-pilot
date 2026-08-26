@@ -19,4 +19,5 @@ Route::prefix('auth')->group(function () {
 Route::middleware('auth:api')->group(function () {
     // Rutas del CRUD de Usuarios
     Route::post('users', [UserController::class, 'store']);
+    Route::put('users/{id}', [UserController::class, 'update']);
 });

@@ -32,4 +32,31 @@ class UserController extends Controller
             return response()->json(['error' => $e->getMessage()], $status);
         }
     }
+
+    /**
+     * Actualizar usuario
+     */
+    public function update(Request $request, $id)
+    {
+        try {
+            $updateChain = new CheckAdminPermissionHandler();
+            $updateChain
+                ->setNext(new FindUserHandler())
+                ->setNext(new ValidateUserUpdateDataHandler())
+                ->setNext(new UpdateUserHandler());
+            $result = $updateChain->handle([
+                'id'   => $id,
+                'data' => $request->all(),
+            ]);
+            return response()->json([
+                'message' => 'Usuario actualizado exitosamente',
+                'user'    => $result['user'],
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            $status = $e->getCode() >= 400 && $e->getCode() < 600 ? $e->getCode() : 500;
+            return response()->json(['error' => $e->getMessage()], $status);
+        }
+    }
 }
