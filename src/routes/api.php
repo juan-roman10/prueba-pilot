@@ -23,3 +23,8 @@ Route::middleware('auth:api')->group(function () {
     Route::put('users/{id}', [UserController::class, 'update']);
     Route::delete('users/{id}', [UserController::class, 'destroy']);
 });
+
+Route::middleware('auth:api')->group(function () {
+    // CRUD Categorías
+    Route::post('categories', [CategoryController::class, 'store']);
+});
