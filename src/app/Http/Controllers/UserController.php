@@ -5,6 +5,13 @@ namespace App\Http\Controllers;
 use App\Services\User\Handlers\Create\CheckAdminPermissionHandler;
 use App\Services\User\Handlers\Create\SaveUserHandler;
 use App\Services\User\Handlers\Create\ValidateUserDataHandler;
+use App\Services\User\Handlers\List\ApplyFiltersHandler;
+use App\Services\User\Handlers\List\PaginateUsersHandler;
+use App\Services\User\Handlers\Delete\DeleteUserHandler;
+use App\Services\User\Handlers\Delete\FindUserForDeletionHandler;
+use App\Services\User\Handlers\Update\FindUserHandler;
+use App\Services\User\Handlers\Update\UpdateUserHandler;
+use App\Services\User\Handlers\Update\ValidateUserUpdateDataHandler;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
