@@ -11,6 +11,21 @@ use Illuminate\Validation\ValidationException;
 class UserController extends Controller
 {
     /**
+     * Listar usuarios con filtros y paginación
+     */
+    public function index(Request $request)
+    {
+        try {
+            $filterChain = new ApplyFiltersHandler();
+            $filterChain->setNext(new PaginateUsersHandler());
+            $result = $filterChain->handle(['filters' => $request->all()]);
+            return response()->json($result['users']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    
+    /**
      * Crear nuevo usuario
      */
     public function store(Request $request)
@@ -54,6 +69,24 @@ class UserController extends Controller
             ]);
         } catch (ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            $status = $e->getCode() >= 400 && $e->getCode() < 600 ? $e->getCode() : 500;
+            return response()->json(['error' => $e->getMessage()], $status);
+        }
+    }
+
+    /**
+     * Eliminar usuario
+     */
+    public function destroy($id)
+    {
+        try {
+            $deleteChain = new CheckAdminPermissionHandler();
+            $deleteChain
+                ->setNext(new PreventSelfDeletionHandler())
+                ->setNext(new DeleteUserHandler());
+            $deleteChain->handle(['id' => $id]);
+            return response()->json(['message' => 'Usuario eliminado correctamente']);
         } catch (\Exception $e) {
             $status = $e->getCode() >= 400 && $e->getCode() < 600 ? $e->getCode() : 500;
             return response()->json(['error' => $e->getMessage()], $status);
