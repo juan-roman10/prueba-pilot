@@ -18,6 +18,7 @@ use App\Services\Article\Handlers\Delete\CheckArticleDeletePermissionHandler;
 use App\Services\Article\Handlers\Delete\DeleteArticleHandler;
 use App\Services\Article\Handlers\List\ApplyArticleFiltersHandler;
 use App\Services\Article\Handlers\List\PaginateArticlesHandler;
+use App\Services\Article\Handlers\Common\CheckActiveUserHandler;
 
 class ArticleController extends Controller
 {
@@ -43,7 +44,7 @@ class ArticleController extends Controller
     {
         try {
             $chain = new ValidateArticleDataHandler();
-            $chain
+            $chain->setNext(new CheckActiveUserHandler())
                 ->setNext(new GenerateUniqueSlugHandler())
                 ->setNext(new AssignAuthorAndDatesHandler())
                 ->setNext(new SaveArticleWithCategoriesHandler());
@@ -68,6 +69,7 @@ class ArticleController extends Controller
         try {
             $chain = new FindArticleHandler();
             $chain
+                ->setNext(new CheckActiveUserHandler())
                 ->setNext(new CheckArticlePermissionHandler())
                 ->setNext(new ValidateArticleUpdateDataHandler())
                 ->setNext(new UpdateSlugIfTitleChangedHandler())
